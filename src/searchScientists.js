@@ -1,39 +1,60 @@
-// Search the published scientist profiles and apply any selected filters.
+// Makes text easier to compare during a search.
+function cleanText(value) {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  return String(value).trim().toLowerCase();
+}
+
 function searchScientists(scientists, options = {}) {
   if (!Array.isArray(scientists)) {
     throw new TypeError("scientists must be an array");
   }
 
-  const normalize = (value) => String(value ?? "").trim().toLowerCase();
-  const query = normalize(options.query);
-  const researchField = normalize(options.researchField);
-  const location = normalize(options.location);
+  const query = cleanText(options.query);
+  const selectedField = cleanText(options.researchField);
+  const selectedLocation = cleanText(options.location);
+  const results = [];
 
-  return scientists.filter((scientist) => {
-    if (scientist?.publicationStatus !== "published") {
-      return false;
+  for (const scientist of scientists) {
+    // Visitors should only see profiles that have been published.
+    if (!scientist || scientist.publicationStatus !== "published") {
+      continue;
     }
 
-    const interests = Array.isArray(scientist.researchInterests)
-      ? scientist.researchInterests.join(" ")
-      : scientist.researchInterests;
+    let interests = scientist.researchInterests || "";
+    if (Array.isArray(interests)) {
+      interests = interests.join(" ");
+    }
 
-    const searchableText = normalize(
-      [scientist.name, interests, scientist.institution].join(" "),
+    const searchableText = cleanText(
+      scientist.name + " " + interests + " " + scientist.institution,
     );
 
-    const profileLocation = normalize(
-      [scientist.city, scientist.region, scientist.institution].join(" "),
+    if (query && !searchableText.includes(query)) {
+      continue;
+    }
+
+    if (
+      selectedField &&
+      cleanText(scientist.researchField) !== selectedField
+    ) {
+      continue;
+    }
+
+    const profileLocation = cleanText(
+      scientist.city + " " + scientist.region + " " + scientist.institution,
     );
 
-    const matchesQuery = query === "" || searchableText.includes(query);
-    const matchesField =
-      researchField === "" || normalize(scientist.researchField) === researchField;
-    const matchesLocation =
-      location === "" || profileLocation.includes(location);
+    if (selectedLocation && !profileLocation.includes(selectedLocation)) {
+      continue;
+    }
 
-    return matchesQuery && matchesField && matchesLocation;
-  });
+    results.push(scientist);
+  }
+
+  return results;
 }
 
 module.exports = { searchScientists };
