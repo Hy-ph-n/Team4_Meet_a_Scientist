@@ -1,3 +1,3 @@
 # Team4_Meet_a_Scientist
 
-This is to show my contribution 
+This repository contains the documentation, coding, and essential resources for the Meet-a-Scientist project.
