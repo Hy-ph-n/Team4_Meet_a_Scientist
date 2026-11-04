@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meet a Scientist Search & Directory</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="header-top">
+          <div>
+            <p class="eyebrow">Team 4 Capstone prototype</p>
+            <h1>Meet a Scientist</h1>
+            <p class="tagline">Discover scientific expertise by research interest, field, institution, and location.</p>
+          </div>
+
+          <!-- Role Switcher Widget -->
+          <div class="role-switcher-card" role="region" aria-label="Role selector">
+            <span class="role-heading">Current Role</span>
+            <div class="role-pills" role="radiogroup" aria-label="Select simulation role">
+              <button type="button" class="role-pill active" data-role="visitor" role="radio" aria-checked="true">Visitor</button>
+              <button type="button" class="role-pill" data-role="scientist" role="radio" aria-checked="false">Scientist</button>
+              <button type="button" class="role-pill" data-role="admin" role="radio" aria-checked="false">Admin</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Action & Status Bar -->
+        <div id="role-banner" class="role-banner" aria-live="polite">
+          <div class="banner-text">
+            <span id="role-status-badge" class="badge">Visitor View</span>
+            <span id="role-status-description">Browsing published scientist directory.</span>
+          </div>
+          <div id="role-actions" class="banner-actions">
+            <button id="add-profile-btn" type="button" class="action-btn" style="display: none;">+ Add Scientist Profile</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Search & Filters Form -->
+      <form id="search-form" role="search" aria-label="Search scientists">
+        <label>
+          Search
+          <input id="query" type="search" placeholder="Name, interest, or university...">
+        </label>
+        <label>
+          Research field
+          <select id="research-field">
+            <option value="">All fields</option>
+          </select>
+        </label>
+        <label>
+          Location
+          <input id="location" type="search" placeholder="e.g. Denton, Austin, Texas">
+        </label>
+        <label>
+          Sort by
+          <select id="sort-by">
+            <option value="name-asc">Name (A–Z)</option>
+            <option value="name-desc">Name (Z–A)</option>
+            <option value="institution-asc">Institution (A–Z)</option>
+            <option value="field-asc">Field (A–Z)</option>
+          </select>
+        </label>
+        <div class="actions">
+          <button type="submit">Search</button>
+          <button id="clear" type="button" class="secondary">Clear</button>
+        </div>
+      </form>
+
+      <!-- Quick Filter Chips -->
+      <div class="chips-container" aria-label="Quick topic filters">
+        <span class="chips-label">Popular Fields:</span>
+        <div id="quick-chips" class="quick-chips"></div>
+      </div>
+
+      <!-- Result Count & Toast Banner -->
+      <div class="status-row">
+        <p id="result-count" aria-live="polite"></p>
+        <div id="toast" class="toast" role="status" aria-live="polite" style="display: none;"></div>
+      </div>
+
+      <section id="results" class="results" aria-label="Scientist profiles"></section>
+
+      <!-- Profile Detail Modal (FR-01) -->
+      <dialog id="profile-modal" aria-labelledby="modal-name">
+        <div class="modal-dialog-inner">
+          <div class="modal-header">
+            <div class="modal-header-info">
+              <div id="modal-avatar" class="avatar modal-avatar" aria-hidden="true"></div>
+              <div>
+                <span id="modal-field" class="field-badge"></span>
+                <span id="modal-status-badge" class="status-pill" style="display: none;"></span>
+                <h2 id="modal-name"></h2>
+                <p id="modal-affiliation" class="affiliation"></p>
+              </div>
+            </div>
+            <button id="modal-close" type="button" class="close-btn" aria-label="Close profile details">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <section class="modal-section">
+              <h3>Biography</h3>
+              <p id="modal-bio"></p>
+            </section>
+
+            <section class="modal-section">
+              <h3>Research Interests</h3>
+              <div id="modal-interests" class="interests-container"></div>
+            </section>
+
+            <section class="modal-section">
+              <h3>Contact & Professional Links</h3>
+              <div id="modal-links" class="links-container"></div>
+            </section>
+          </div>
+        </div>
+      </dialog>
+
+      <!-- Profile Create / Edit Modal (FR-04) -->
+      <dialog id="editor-modal" aria-labelledby="editor-title">
+        <div class="modal-dialog-inner editor-inner">
+          <div class="modal-header">
+            <h2 id="editor-title">Add Scientist Profile</h2>
+            <button id="editor-close" type="button" class="close-btn" aria-label="Close editor">&times;</button>
+          </div>
+
+          <form id="editor-form" class="editor-form" novalidate>
+            <input type="hidden" id="editor-profile-id">
+
+            <div id="editor-errors" class="form-errors" style="display: none;" role="alert"></div>
+
+            <div class="form-row">
+              <label>
+                Full Name *
+                <input id="editor-name" type="text" placeholder="Dr. Jane Smith" required>
+              </label>
+              <label>
+                Research Field *
+                <input id="editor-field" type="text" placeholder="e.g. Computer Science" list="fields-datalist" required>
+                <datalist id="fields-datalist"></datalist>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                Institution / Affiliation *
+                <input id="editor-institution" type="text" placeholder="University of North Texas" required>
+              </label>
+              <label>
+                City *
+                <input id="editor-city" type="text" placeholder="Denton" required>
+              </label>
+              <label>
+                State / Region *
+                <input id="editor-region" type="text" placeholder="Texas" required>
+              </label>
+            </div>
+
+            <label>
+              Research Interests * (comma-separated)
+              <input id="editor-interests" type="text" placeholder="Human-computer interaction, Accessible design" required>
+            </label>
+
+            <label>
+              Biography
+              <textarea id="editor-bio" rows="3" placeholder="Brief summary of research experience and focus..."></textarea>
+            </label>
+
+            <div class="form-row">
+              <label>
+                Website URL
+                <input id="editor-website" type="url" placeholder="https://example.edu/~profile">
+              </label>
+              <label>
+                Publications Link
+                <input id="editor-publications" type="url" placeholder="https://scholar.example.com/citations">
+              </label>
+              <label>
+                Contact Email
+                <input id="editor-email" type="email" placeholder="jane.smith@example.edu">
+              </label>
+            </div>
+
+            <div id="editor-status-container" class="form-row" style="display: none;">
+              <label>
+                Publication Status (Admin)
+                <select id="editor-status">
+                  <option value="published">Published</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="editor-actions">
+              <button type="submit" id="editor-save-btn">Save Profile</button>
+              <button type="button" id="editor-cancel-btn" class="secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+    </main>
+
+    <script src="../src/scientists.js"></script>
+    <script src="../src/searchScientists.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
